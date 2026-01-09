@@ -1,3 +1,5 @@
+import { RouterProvider } from "./components/router-provider";
+
 export default function App() {
-  return <div>FOMO</div>;
+  return <RouterProvider />;
 }
