@@ -1,3 +1,9 @@
+import { Outlet } from "react-router";
+
 export const AuthLayout = () => {
-  return <div>AuthLayout</div>;
+  return (
+    <main className="mt-48 flex w-full items-center justify-center px-4 md:mt-0 md:h-screen">
+      <Outlet />
+    </main>
+  );
 };
