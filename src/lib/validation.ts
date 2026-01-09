@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const trimString = z.string().trim().min(1, "Field cannot be empty");
 
-export const authSchema = z.object({
+export const registerSchema = z.object({
   email: trimString
     .email("Invalid email address")
     .max(254, "Email is too long")
