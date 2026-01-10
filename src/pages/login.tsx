@@ -2,7 +2,7 @@ import { loginSchema } from "@/lib/validation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,11 +20,14 @@ import {
 } from "@/components/ui/input-group";
 import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
+import { useLoginUser } from "@/lib/react-query/mutations";
+import { toast } from "sonner";
+import type { AuthApiError } from "@supabase/supabase-js";
 
 export const Login = () => {
   const [isPassword, setIsPassword] = useState<boolean>(true);
-
   const handleIsPasswordChange = () => setIsPassword((prev) => !prev);
+  const navigation = useNavigate();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
@@ -33,6 +36,24 @@ export const Login = () => {
     },
     resolver: zodResolver(loginSchema),
   });
+
+  const { mutateAsync: loginUser, isPending: userLoginPending } =
+    useLoginUser();
+
+  const handleUserLogin = async (data: z.infer<typeof loginSchema>) => {
+    try {
+      const res = await loginUser(data);
+
+      if (res.success) {
+        navigation("/");
+        form.reset();
+      }
+      toast.error(res.message);
+    } catch (error) {
+      const e = error as AuthApiError;
+      toast.error(e.message);
+    }
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -48,7 +69,7 @@ export const Login = () => {
         </div>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit((data) => console.log(data))}
+            onSubmit={form.handleSubmit(handleUserLogin)}
             className="space-y-6"
           >
             <FormField
@@ -94,7 +115,9 @@ export const Login = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            <Button disabled={userLoginPending} type="submit">
+              Submit
+            </Button>
           </form>
         </Form>
       </div>

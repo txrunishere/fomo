@@ -131,4 +131,4 @@ const createUserRow = async (
   }
 };
 
-export { registerUser, loginUser, logoutUser, createUserRow };
+export { registerUser, loginUser, logoutUser };
