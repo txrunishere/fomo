@@ -47,8 +47,11 @@ export const Login = () => {
       if (res.success) {
         navigation("/");
         form.reset();
+        toast.success(res.message);
+        return;
       }
       toast.error(res.message);
+      return;
     } catch (error) {
       const e = error as AuthApiError;
       toast.error(e.message);

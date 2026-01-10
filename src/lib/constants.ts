@@ -6,3 +6,7 @@ export const ROUTES = {
   CREATE: "/create",
   SEARCH: "/search",
 };
+
+export const QUERY_KEYS = {
+  FIND_USERNAME: "findUsername",
+};

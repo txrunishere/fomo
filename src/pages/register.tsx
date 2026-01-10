@@ -1,8 +1,8 @@
 import { registerSchema } from "@/lib/validation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { useForm, useWatch } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,12 +18,17 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useState } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Eye, EyeClosed, CheckCircle2, XCircle } from "lucide-react";
+import { useRegisterUser } from "@/lib/react-query/mutations";
+import { toast } from "sonner";
+import type { AuthApiError } from "@supabase/supabase-js";
+import { useFindUsername } from "@/lib/react-query/queries";
 
 export const Register = () => {
+  const navigation = useNavigate();
   const [isPassword, setIsPassword] = useState<boolean>(true);
-
+  const [debouncedUsername, setDebouncedUsername] = useState<string>("");
   const handleIsPasswordChange = () => setIsPassword((prev) => !prev);
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -35,6 +40,47 @@ export const Register = () => {
     },
     resolver: zodResolver(registerSchema),
   });
+
+  const username = useWatch({
+    control: form.control,
+    name: "username",
+  });
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedUsername(username);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [username]);
+
+  const { mutateAsync: registerUser, isPending: userRegisterPending } =
+    useRegisterUser();
+
+  const { data: usernameData, isLoading: usernameLoading } =
+    useFindUsername(debouncedUsername);
+
+  const handleUserRegister = async (data: z.infer<typeof registerSchema>) => {
+    try {
+      if (!usernameLoading && usernameData?.exists) {
+        toast.error("Username already exists");
+        return;
+      }
+
+      const res = await registerUser(data);
+
+      if (res.success) {
+        toast.success(res.message);
+        navigation("/");
+        return;
+      }
+      toast.error(res.message);
+      return;
+    } catch (error) {
+      const e = error as AuthApiError;
+      toast.error(e.message);
+    }
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -50,7 +96,7 @@ export const Register = () => {
         </div>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit((data) => console.log(data))}
+            onSubmit={form.handleSubmit(handleUserRegister)}
             className="space-y-6"
           >
             <FormField
@@ -73,7 +119,23 @@ export const Register = () => {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder="sukha.here" {...field} />
+                    <InputGroup>
+                      <InputGroupInput
+                        type="text"
+                        placeholder="sukha.here"
+                        {...field}
+                      />
+                      <InputGroupAddon align={"inline-end"}>
+                        {usernameLoading ? null : username &&
+                          username.length >= 3 ? (
+                          usernameData?.exists ? (
+                            <XCircle />
+                          ) : (
+                            <CheckCircle2 />
+                          )
+                        ) : null}
+                      </InputGroupAddon>
+                    </InputGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,7 +184,9 @@ export const Register = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+            <Button disabled={userRegisterPending} type="submit">
+              Submit
+            </Button>
           </form>
         </Form>
       </div>

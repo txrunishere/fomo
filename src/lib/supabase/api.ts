@@ -131,4 +131,31 @@ const createUserRow = async (
   }
 };
 
-export { registerUser, loginUser, logoutUser };
+const findUsername = async (username: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("id")
+      .eq("username", username)
+      .maybeSingle();
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      exists: !!data?.id,
+    };
+  } catch (e) {
+    console.error(e);
+    return {
+      success: false,
+      message: "an error occured while finding user",
+    };
+  }
+};
+
+export { registerUser, loginUser, logoutUser, findUsername };
