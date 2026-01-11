@@ -17,6 +17,12 @@ const registerUser = async (
     });
 
     if (error) {
+      if (error.code === "user_already_exists") {
+        return {
+          message: "Email already Registered",
+          success: false,
+        };
+      }
       return {
         message: error.message,
         success: false,
