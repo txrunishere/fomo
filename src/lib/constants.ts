@@ -5,6 +5,7 @@ export const ROUTES = {
   PROFILE: "/profile",
   CREATE: "/create",
   SEARCH: "/search",
+  MESSAGES: "/messages",
 };
 
 export const QUERY_KEYS = {
