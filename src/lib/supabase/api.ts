@@ -96,6 +96,11 @@ const logoutUser = async (): Promise<AUTH_API_RESPONSE | undefined> => {
       message: error.message,
     };
   }
+
+  return {
+    success: true,
+    message: "logout successfully",
+  };
 };
 
 const createUserRow = async (

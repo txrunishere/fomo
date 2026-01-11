@@ -10,8 +10,6 @@ export const AuthContextProvider = ({
 }) => {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
-  console.log(session);
-
   useEffect(() => {
     supabase.auth.getSession().then((res) => setSession(res.data.session));
 

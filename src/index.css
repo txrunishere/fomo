@@ -8,8 +8,17 @@
   font-family: Inter;
 }
 
+@font-face {
+  src: url("assets/fonts/PixelifySans-Medium.ttf");
+  font-family: PixelifySans;
+}
+
 * {
   font-family: Inter;
+}
+
+.pixel {
+  font-family: PixelifySans;
 }
 
 @theme inline {
