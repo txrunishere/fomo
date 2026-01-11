@@ -37,6 +37,7 @@ export function Sidebar() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const { session } = useAuth();
+  const userData = session?.user.user_metadata;
 
   const { mutateAsync: logoutUser, isPending } = useLogoutUser();
 
@@ -57,12 +58,16 @@ export function Sidebar() {
         <DropdownMenuTrigger asChild>
           <button className="bg-muted/40 hover:bg-muted flex w-full items-center gap-3 rounded-xl p-3 text-left transition">
             <Avatar>
-              <AvatarImage src="https://i.pravatar.cc/" />
-              <AvatarFallback>TR</AvatarFallback>
+              <AvatarImage src={userData?.imageUrl} />
+              <AvatarFallback>
+                {userData?.fullName.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
 
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">Tarun</span>
+              <span className="text-sm font-semibold">
+                {userData?.fullName}
+              </span>
               <span className="text-muted-foreground text-xs">
                 {session?.user.email}
               </span>

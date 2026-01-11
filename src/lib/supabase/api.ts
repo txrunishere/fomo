@@ -4,6 +4,7 @@ import type {
   LOGIN_USER_PROPS,
   REGISTER_USER_PROPS,
   AUTH_API_RESPONSE,
+  QUERY_API_RESPONSE,
 } from "@/types";
 
 const registerUser = async (
@@ -44,8 +45,18 @@ const registerUser = async (
     });
 
     if (!createUser.success) {
-      return createUser;
+      return {
+        success: false,
+        message: createUser?.message || "an error occurred!",
+      };
     }
+
+    await supabase.auth.updateUser({
+      data: {
+        fullName: createUser.data.fullName,
+        imageUrl: createUser.data.imageUrl || null,
+      },
+    });
 
     return {
       success: true,
@@ -105,11 +116,11 @@ const logoutUser = async (): Promise<AUTH_API_RESPONSE | undefined> => {
 
 const createUserRow = async (
   data: CREATE_USER_PROPS,
-): Promise<AUTH_API_RESPONSE> => {
+): Promise<QUERY_API_RESPONSE> => {
   try {
     const { accountId, email, fullName, username } = data;
 
-    const { error } = await supabase
+    const { error, data: user } = await supabase
       .from("users")
       .insert([
         {
@@ -132,6 +143,7 @@ const createUserRow = async (
     return {
       success: true,
       message: "User created successfully!",
+      data: user,
     };
   } catch (e) {
     console.error(e);
