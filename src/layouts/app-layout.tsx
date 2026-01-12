@@ -20,11 +20,11 @@ export const AppLayout = () => {
   }
 
   return (
-    <main className="h-screen w-full md:flex">
+    <main className="flex h-screen w-full flex-col md:flex-row">
       <Sidebar />
       <div className="relative flex h-auto flex-1">
         <Outlet />
-        <div className="absolute inset-0 flex items-center justify-center font-bold opacity-1 md:text-[100px] lg:text-[200px] xl:text-[300px] 2xl:text-[400px]">
+        <div className="pointer-events-none absolute inset-0 hidden items-center justify-center font-bold opacity-1 md:flex md:text-[100px] lg:text-[200px] xl:text-[300px] 2xl:text-[400px]">
           FOMO
         </div>
         <LightRays />
