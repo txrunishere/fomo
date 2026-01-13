@@ -27,3 +27,11 @@ export type QUERY_API_RESPONSE = {
   data?: any;
   message?: string;
 };
+
+export type CREATE_POST_PROPS = {
+  caption: string;
+  tags: Array<string>;
+  userId: string;
+  location: string;
+  image: File;
+};

@@ -5,6 +5,7 @@ import type {
   REGISTER_USER_PROPS,
   AUTH_API_RESPONSE,
   QUERY_API_RESPONSE,
+  CREATE_POST_PROPS,
 } from "@/types";
 
 const registerUser = async (
@@ -55,6 +56,7 @@ const registerUser = async (
       data: {
         fullName: createUser.data.fullName,
         imageUrl: createUser.data.imageUrl || null,
+        userId: createUser.data.id,
       },
     });
 
@@ -181,4 +183,111 @@ const findUsername = async (username: string) => {
   }
 };
 
-export { registerUser, loginUser, logoutUser, findUsername };
+const createPost = async (data: CREATE_POST_PROPS) => {
+  try {
+    const uploadImageResponse = await uploadPostImage({
+      image: data.image,
+      userId: data.userId,
+    });
+
+    if (!uploadImageResponse.success || !uploadImageResponse.data) {
+      return uploadImageResponse;
+    }
+
+    const { error } = await supabase.from("posts").insert({
+      caption: data.caption,
+      location: data.location,
+      tags: data.tags,
+      userId: data.userId,
+      postImageUrl: uploadImageResponse.data?.url,
+    });
+
+    if (error) {
+      await deletePostImage(uploadImageResponse.data.filePath);
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Post created successfully!",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "an error occurred while creating post",
+    };
+  }
+};
+
+const uploadPostImage = async ({
+  image,
+  userId,
+}: {
+  image: File;
+  userId: string;
+}) => {
+  try {
+    const filePath = `${userId}/${crypto.randomUUID()}-${image.name}`;
+
+    const { data, error } = await supabase.storage
+      .from("postImage")
+      .upload(filePath, image, {
+        contentType: image.type,
+        upsert: false,
+      });
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from("postImage")
+      .getPublicUrl(data.path);
+
+    return {
+      success: true,
+      data: {
+        url: publicUrl.publicUrl,
+        filePath: data.path,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "an error occurrd while uploading image",
+    };
+  }
+};
+
+const deletePostImage = async (filePath: string) => {
+  try {
+    const { error } = await supabase.storage
+      .from("postImage")
+      .remove([filePath]);
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "An error occurred while deleting image",
+    };
+  }
+};
+
+export { registerUser, loginUser, logoutUser, findUsername, createPost };
