@@ -32,6 +32,6 @@ export type CREATE_POST_PROPS = {
   caption: string;
   tags: Array<string>;
   userId: string;
-  location: string;
+  location: string | null;
   image: File;
 };

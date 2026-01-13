@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
 import {
   Dialog,
   DialogContent,
@@ -22,10 +21,16 @@ import {
 } from "@/components/ui/dialog";
 import { postSchema } from "@/lib/validation";
 import { z } from "zod";
+import { useCreatePost } from "@/lib/react-query/mutations";
+import { toast } from "sonner";
+import type { PostgrestError } from "@supabase/supabase-js";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router";
 
 export function CreatePostForm() {
   const [openPreview, setOpenPreview] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const { session } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof postSchema>>({
     resolver: zodResolver(postSchema),
@@ -37,24 +42,48 @@ export function CreatePostForm() {
     },
   });
 
-  const imageFile = form.watch("postImage");
+  const imageFile = useWatch({
+    control: form.control,
+    name: "postImage",
+  });
+
+  const previewUrl = useMemo(() => {
+    if (!openPreview || !imageFile) return null;
+    return URL.createObjectURL(imageFile);
+  }, [imageFile, openPreview]);
 
   useEffect(() => {
-    if (!openPreview || !imageFile) return;
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
-    const url = URL.createObjectURL(imageFile);
-    setPreviewUrl(url);
+  const { mutateAsync: createPost, isPending: createPostLoading } =
+    useCreatePost();
 
-    return () => URL.revokeObjectURL(url);
-  }, [openPreview, imageFile]);
+  const onSubmit = async (data: z.infer<typeof postSchema>) => {
+    const tags = data.tags?.split(",").map((t) => t.trim()) ?? [];
 
-  const onSubmit = (values: z.infer<typeof postSchema>) => {
-    const tagsArray = values.tags?.split(",").map((t) => t.trim()) ?? [];
+    try {
+      const res = await createPost({
+        caption: data.caption,
+        location: data.location || null,
+        image: data.postImage,
+        tags,
+        userId: session?.user.user_metadata.userId,
+      });
 
-    console.log({
-      ...values,
-      tags: tagsArray,
-    });
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+
+      navigate("/");
+    } catch (e) {
+      toast.error((e as PostgrestError).message);
+    }
   };
 
   return (
@@ -148,7 +177,11 @@ export function CreatePostForm() {
               )}
             />
 
-            <Button onClick={form.handleSubmit(onSubmit)} className="w-full">
+            <Button
+              disabled={createPostLoading}
+              onClick={form.handleSubmit(onSubmit)}
+              className="w-full"
+            >
               Create Post
             </Button>
           </div>
