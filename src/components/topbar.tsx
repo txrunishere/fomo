@@ -23,7 +23,7 @@ export function Topbar() {
   };
 
   return (
-    <header className="border-border bg-background/40 sticky top-0 z-50 flex h-16 items-center justify-between border-b px-6 backdrop-blur-xl md:hidden">
+    <header className="border-border bg-background/40 sticky top-0 z-50 flex min-h-16 items-center justify-between border-b px-6 backdrop-blur-xl md:hidden">
       <div
         onClick={() => navigate("/")}
         className="flex cursor-pointer items-center gap-3"

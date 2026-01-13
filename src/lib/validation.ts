@@ -55,3 +55,36 @@ export const loginSchema = z.object({
     .min(8, "Invalid email or password")
     .max(64, "Invalid email or password"),
 });
+
+export const postSchema = z.object({
+  caption: z
+    .string()
+    .min(1, "Caption is required")
+    .max(500, "Caption too long"),
+
+  tags: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.split(",").every((tag) => tag.trim().length > 0),
+      {
+        message: "Tags must be comma separated values",
+      },
+    ),
+
+  location: z.string().max(100, "Location too long").optional(),
+
+  postImage: z
+    .custom<File>((file) => file instanceof File, {
+      message: "Image is required",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Image must be less than 5MB",
+    })
+    .refine(
+      (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+      {
+        message: "Only JPG, PNG or WEBP images allowed",
+      },
+    ),
+});
