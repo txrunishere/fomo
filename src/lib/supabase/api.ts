@@ -7,6 +7,7 @@ import type {
   QUERY_API_RESPONSE,
   CREATE_POST_PROPS,
 } from "@/types";
+import { v4 as UUID } from "uuid";
 
 const registerUser = async (
   data: REGISTER_USER_PROPS,
@@ -231,7 +232,7 @@ const uploadPostImage = async ({
   userId: string;
 }) => {
   try {
-    const filePath = `${userId}/${crypto.randomUUID()}-${image.name}`;
+    const filePath = `${userId}/${UUID()}-${image.name}`;
 
     const { data, error } = await supabase.storage
       .from("postImage")
@@ -262,7 +263,7 @@ const uploadPostImage = async ({
     console.log(error);
     return {
       success: false,
-      message: "an error occurrd while uploading image",
+      message: "An error occurred while uploading image",
     };
   }
 };

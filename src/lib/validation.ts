@@ -75,16 +75,14 @@ export const postSchema = z.object({
   location: z.string().max(100, "Location too long").optional(),
 
   postImage: z
-    .custom<File>((file) => file instanceof File, {
-      message: "Image is required",
-    })
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "Image must be less than 5MB",
+    .instanceof(File, { message: "Image is required" })
+    .refine((file) => file.size <= 8 * 1024 * 1024, {
+      message: "Image must be less than 8MB",
     })
     .refine(
       (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
       {
-        message: "Only JPG, PNG or WEBP images allowed",
+        message: "Only JPG, PNG or WEBP images are allowed",
       },
     ),
 });
