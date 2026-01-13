@@ -22,7 +22,7 @@ import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
 import { useLoginUser } from "@/lib/react-query/mutations";
 import { toast } from "sonner";
-import type { AuthApiError } from "@supabase/supabase-js";
+import type { AuthError } from "@supabase/supabase-js";
 
 export const Login = () => {
   const [isPassword, setIsPassword] = useState<boolean>(true);
@@ -53,7 +53,7 @@ export const Login = () => {
       toast.error(res.message);
       return;
     } catch (error) {
-      const e = error as AuthApiError;
+      const e = error as AuthError;
       toast.error(e.message);
     }
   };

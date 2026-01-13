@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { Eye, EyeClosed, CheckCircle2, XCircle } from "lucide-react";
 import { useRegisterUser } from "@/lib/react-query/mutations";
 import { toast } from "sonner";
-import type { AuthApiError } from "@supabase/supabase-js";
+import type { AuthError } from "@supabase/supabase-js";
 import { useFindUsername } from "@/lib/react-query/queries";
 
 export const Register = () => {
@@ -77,7 +77,7 @@ export const Register = () => {
       toast.error(res.message);
       return;
     } catch (error) {
-      const e = error as AuthApiError;
+      const e = error as AuthError;
       toast.error(e.message);
     }
   };
