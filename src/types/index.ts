@@ -1,3 +1,5 @@
+import type { StatsRecording } from "motion/react";
+
 export type REGISTER_USER_PROPS = {
   username: string;
   fullName: string;
@@ -34,4 +36,20 @@ export type CREATE_POST_PROPS = {
   userId: string;
   location: string | null;
   image: File;
+};
+
+export type IPOST = {
+  id: number;
+  caption: string;
+  userId: number;
+  tags: Array<string>;
+  postImageUrl: string;
+  location: string;
+  created_at: string;
+  users: {
+    id: number;
+    fullName: string;
+    username: string;
+    imageUrl: string;
+  };
 };

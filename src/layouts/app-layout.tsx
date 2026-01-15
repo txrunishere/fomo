@@ -25,12 +25,14 @@ export const AppLayout = () => {
     <main className="flex h-screen w-full flex-col md:flex-row">
       <Sidebar />
       <Topbar />
-      <div className="relative flex h-auto flex-1 not-md:pb-20">
+      <div className="relative flex h-auto flex-1 flex-col not-md:pb-20">
         <Outlet />
         <div className="pointer-events-none absolute inset-0 -z-50 hidden items-center justify-center font-bold opacity-1 md:flex md:text-[100px] lg:text-[200px] xl:text-[300px] 2xl:text-[400px]">
           FOMO
         </div>
-        <LightRays />
+        <div className="-z-50">
+          <LightRays />
+        </div>
       </div>
       <BottomBar />
     </main>

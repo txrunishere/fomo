@@ -64,7 +64,13 @@ export function CreatePostForm() {
     useCreatePost();
 
   const onSubmit = async (data: z.infer<typeof postSchema>) => {
-    const tags = data.tags?.split(",").map((t) => t.trim()) ?? [];
+    let tags: string[];
+
+    if (!data.tags) {
+      tags = [];
+    } else {
+      tags = data.tags?.split(",").map((t) => t.trim().toLowerCase());
+    }
 
     try {
       const res = await createPost({

@@ -6,6 +6,7 @@ import type {
   AUTH_API_RESPONSE,
   QUERY_API_RESPONSE,
   CREATE_POST_PROPS,
+  IPOST,
 } from "@/types";
 import { v4 as UUID } from "uuid";
 
@@ -297,14 +298,14 @@ const getPosts = async ({
   pageParam = 0,
 }: {
   pageParam?: number;
-}): Promise<{ data?: any[]; success: boolean; message?: string }> => {
+}): Promise<{ data?: IPOST[]; success: boolean; message?: string }> => {
   try {
     const from = pageParam * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
     const { data: posts, error } = await supabase
       .from("posts")
-      .select("*")
+      .select("*, users(id, username, fullName, imageUrl)")
       .order("created_at", { ascending: false })
       .range(from, to);
 
