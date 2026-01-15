@@ -1,3 +1,3 @@
 export const Home = () => {
-  return <div>HOME</div>;
+  return <div className="flex-1 overflow-y-auto">Home</div>;
 };

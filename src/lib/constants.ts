@@ -10,4 +10,5 @@ export const ROUTES = {
 
 export const QUERY_KEYS = {
   FIND_USERNAME: "findUsername",
+  GET_POSTS: "getPosts",
 };

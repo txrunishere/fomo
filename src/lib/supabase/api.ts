@@ -291,4 +291,47 @@ const deletePostImage = async (filePath: string) => {
   }
 };
 
-export { registerUser, loginUser, logoutUser, findUsername, createPost };
+const PAGE_SIZE = 10;
+
+const getPosts = async ({
+  pageParam = 0,
+}: {
+  pageParam?: number;
+}): Promise<{ data?: any[]; success: boolean; message?: string }> => {
+  try {
+    const from = pageParam * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    const { data: posts, error } = await supabase
+      .from("posts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (error)
+      return {
+        success: false,
+        message: error.message,
+      };
+
+    return {
+      success: true,
+      data: posts,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "an error occurred while fetching posts!",
+    };
+  }
+};
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  findUsername,
+  createPost,
+  getPosts,
+};

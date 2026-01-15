@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../constants";
-import { findUsername } from "../supabase/api";
+import { findUsername, getPosts } from "../supabase/api";
 
 const useFindUsername = (username: string) => {
   return useQuery({
@@ -10,4 +10,16 @@ const useFindUsername = (username: string) => {
   });
 };
 
-export { useFindUsername };
+const useGetPosts = () => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.GET_POSTS],
+    queryFn: getPosts,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.data && lastPage?.data.length < 10) return undefined;
+      return allPages.length;
+    },
+  });
+};
+
+export { useFindUsername, useGetPosts };
