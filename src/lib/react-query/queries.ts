@@ -15,10 +15,7 @@ const useGetPosts = () => {
     queryKey: [QUERY_KEYS.GET_POSTS],
     queryFn: getPosts,
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.data && lastPage?.data.length < 10) return undefined;
-      return allPages.length;
-    },
+    getNextPageParam: (lastPage) => lastPage.data?.nextCursor,
   });
 };
 

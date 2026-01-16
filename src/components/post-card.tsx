@@ -4,8 +4,7 @@ import type { IPOST } from "@/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Link } from "react-router";
-import { Bookmark, Heart } from "lucide-react";
-import { Button } from "./ui/button";
+import { PostAction } from "./post-action";
 
 dayjs.extend(relativeTime);
 
@@ -60,14 +59,7 @@ export const PostCard = ({ post }: { post: IPOST }) => {
 
       <CardContent className="space-y-2">
         {/*LIKE AND SAVE BUTTONS - PENDING*/}
-        <div className="flex justify-between">
-          <Button variant={"ghost"} size={"icon-lg"}>
-            <Heart size={18} />
-          </Button>
-          <Button variant={"ghost"} size={"icon-lg"}>
-            <Bookmark size={18} />
-          </Button>
-        </div>
+        <PostAction post={post} />
 
         <span className="text-muted-foreground text-xs">
           {dayjs(post.created_at).fromNow()}

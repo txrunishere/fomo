@@ -11,7 +11,7 @@ export const AppLayout = () => {
 
   if (session === undefined) {
     return (
-      <div className="mt-40 flex w-full justify-center">
+      <div className="mt-40">
         <Loader />
       </div>
     );

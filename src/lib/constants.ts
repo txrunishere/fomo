@@ -12,3 +12,5 @@ export const QUERY_KEYS = {
   FIND_USERNAME: "findUsername",
   GET_POSTS: "getPosts",
 };
+
+export const POSTS_LIMIT = 2;

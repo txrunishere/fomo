@@ -9,6 +9,7 @@ import type {
   IPOST,
 } from "@/types";
 import { v4 as UUID } from "uuid";
+import { POSTS_LIMIT } from "../constants";
 
 const registerUser = async (
   data: REGISTER_USER_PROPS,
@@ -292,22 +293,25 @@ const deletePostImage = async (filePath: string) => {
   }
 };
 
-const PAGE_SIZE = 10;
-
 const getPosts = async ({
   pageParam = 0,
 }: {
-  pageParam?: number;
-}): Promise<{ data?: IPOST[]; success: boolean; message?: string }> => {
+  pageParam?: number | undefined;
+}): Promise<{
+  data?: { posts: IPOST[]; nextCursor: number | undefined };
+  success: boolean;
+  message?: string;
+}> => {
   try {
-    const from = pageParam * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
+    const start = pageParam;
 
     const { data: posts, error } = await supabase
       .from("posts")
-      .select("*, users(id, username, fullName, imageUrl)")
+      .select("*, users(id, username, fullName, imageUrl), likes(*), saved(*)")
       .order("created_at", { ascending: false })
-      .range(from, to);
+      .range(start, start + POSTS_LIMIT - 1);
+
+    console.log(posts);
 
     if (error)
       return {
@@ -317,7 +321,11 @@ const getPosts = async ({
 
     return {
       success: true,
-      data: posts,
+      data: {
+        posts,
+        nextCursor:
+          posts.length === POSTS_LIMIT ? start + POSTS_LIMIT : undefined,
+      },
     };
   } catch (e) {
     console.log(e);

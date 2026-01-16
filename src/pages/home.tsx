@@ -1,3 +1,4 @@
+import { Loader } from "@/components/loader";
 import { PostCard } from "@/components/post-card";
 import { useGetPosts } from "@/lib/react-query/queries";
 import { useEffect } from "react";
@@ -22,7 +23,11 @@ export const Home = () => {
   }, [inView, hasNextPage, fetchNextPage]);
 
   if (status === "pending") {
-    return <p>Loading posts...</p>;
+    return (
+      <div className="mt-40">
+        <Loader />
+      </div>
+    );
   }
 
   if (status === "error") {
@@ -39,7 +44,7 @@ export const Home = () => {
       <div className="space-y-4 px-2 py-8">
         {data.pages.map((page, index) => (
           <div key={index} className="flex flex-col gap-4">
-            {page.data?.map((post) => (
+            {page.data?.posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
