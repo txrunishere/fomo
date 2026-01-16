@@ -1,5 +1,3 @@
-import type { StatsRecording } from "motion/react";
-
 export type REGISTER_USER_PROPS = {
   username: string;
   fullName: string;
@@ -52,4 +50,13 @@ export type IPOST = {
     username: string;
     imageUrl: string;
   };
+  likes: {
+    id: number;
+    user_id: number;
+  }[];
+};
+
+export type LIKE_POST_PROPS = {
+  postId: number;
+  userId: number;
 };

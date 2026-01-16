@@ -7,6 +7,7 @@ import type {
   QUERY_API_RESPONSE,
   CREATE_POST_PROPS,
   IPOST,
+  LIKE_POST_PROPS,
 } from "@/types";
 import { v4 as UUID } from "uuid";
 import { POSTS_LIMIT } from "../constants";
@@ -307,11 +308,11 @@ const getPosts = async ({
 
     const { data: posts, error } = await supabase
       .from("posts")
-      .select("*, users(id, username, fullName, imageUrl), likes(*), saved(*)")
+      .select(
+        "*, users(id, username, fullName, imageUrl), likes(id, user_id), saved(*)",
+      )
       .order("created_at", { ascending: false })
       .range(start, start + POSTS_LIMIT - 1);
-
-    console.log(posts);
 
     if (error)
       return {
@@ -336,6 +337,104 @@ const getPosts = async ({
   }
 };
 
+const likePost = async ({
+  postId,
+  userId,
+}: LIKE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+  try {
+    if (!postId || !userId) {
+      return {
+        success: false,
+        message: "Post ID and User ID are required",
+      };
+    }
+
+    const { error, data: likedPost } = await supabase
+      .from("likes")
+      .insert({
+        post_id: postId,
+        user_id: userId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "23505") {
+        return {
+          success: true,
+          message: "Post already liked",
+          data: null,
+        };
+      }
+
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Post liked successfully",
+      data: likedPost,
+    };
+  } catch (error) {
+    console.error("Like post error:", error);
+    return {
+      success: false,
+      message: "An error occurred while liking the post. Please try again",
+    };
+  }
+};
+
+const unlikePost = async ({
+  postId,
+  userId,
+}: LIKE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+  try {
+    if (!postId || !userId) {
+      return {
+        success: false,
+        message: "Post ID and User ID are required",
+      };
+    }
+
+    const { error, data, count } = await supabase
+      .from("likes")
+      .delete({ count: "exact" })
+      .eq("post_id", postId)
+      .eq("user_id", userId)
+      .select();
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    if (count === 0) {
+      return {
+        success: true,
+        message: "Post was not liked",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Post unliked successfully",
+      data,
+    };
+  } catch (error) {
+    console.error("Unlike post error:", error);
+    return {
+      success: false,
+      message: "An error occurred while unliking the post. Please try again",
+    };
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -343,4 +442,6 @@ export {
   findUsername,
   createPost,
   getPosts,
+  likePost,
+  unlikePost,
 };
