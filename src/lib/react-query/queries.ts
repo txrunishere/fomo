@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../constants";
-import { findUsername, getPosts } from "../supabase/api";
+import { findUsername, getPosts, getUser } from "../supabase/api";
 
 const useFindUsername = (username: string) => {
   return useQuery({
@@ -19,4 +19,12 @@ const useGetPosts = () => {
   });
 };
 
-export { useFindUsername, useGetPosts };
+const useGetUser = (userId: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER],
+    queryFn: () => getUser(userId),
+    enabled: !!userId,
+  });
+};
+
+export { useFindUsername, useGetPosts, useGetUser };

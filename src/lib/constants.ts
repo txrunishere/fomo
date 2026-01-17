@@ -11,6 +11,7 @@ export const ROUTES = {
 export const QUERY_KEYS = {
   FIND_USERNAME: "findUsername",
   GET_POSTS: "getPosts",
+  GET_USER: "getUser",
 };
 
-export const POSTS_LIMIT = 2;
+export const POSTS_LIMIT = 10;

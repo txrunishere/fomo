@@ -505,6 +505,34 @@ const unsavePost = async ({
   }
 };
 
+const getUser = async (userId: number) => {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*, posts(id)")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      data: user,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "An error occurred while fetching user",
+    };
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -516,4 +544,5 @@ export {
   unlikePost,
   savePost,
   unsavePost,
+  getUser,
 };
