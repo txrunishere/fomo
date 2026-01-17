@@ -85,7 +85,11 @@ export const SavePostButton = ({ post }: { post: IPOST }) => {
       size="icon-lg"
       aria-label="Bookmark post"
     >
-      {isSaved ? <Bookmark size={18} fill="gray" /> : <Bookmark size={18} />}
+      <Bookmark
+        size={18}
+        fill={isSaved ? "currentColor" : "none"}
+        className={isSaved ? "text-black dark:text-white" : ""}
+      />
     </Button>
   );
 };
