@@ -62,7 +62,7 @@ export const Register = () => {
 
   const handleUserRegister = async (data: z.infer<typeof registerSchema>) => {
     try {
-      if (!usernameLoading && usernameData?.exists) {
+      if (!usernameLoading && usernameData?.data?.exists) {
         toast.error("Username already exists");
         return;
       }
@@ -128,7 +128,7 @@ export const Register = () => {
                       <InputGroupAddon align={"inline-end"}>
                         {usernameLoading ? null : username &&
                           username.length >= 3 ? (
-                          usernameData?.exists ? (
+                          usernameData?.data?.exists ? (
                             <XCircle />
                           ) : (
                             <CheckCircle2 />

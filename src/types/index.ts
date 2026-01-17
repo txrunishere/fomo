@@ -22,9 +22,9 @@ export type AUTH_API_RESPONSE = {
   message: string;
 };
 
-export type QUERY_API_RESPONSE = {
+export type QUERY_API_RESPONSE<T = unknown> = {
   success: boolean;
-  data?: any;
+  data?: T;
   message?: string;
 };
 

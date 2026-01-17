@@ -10,6 +10,7 @@ import type {
   UPLOAD_POST_IMAGE,
   GET_POST_RETURN_PROPS,
   SAVE_POST_PROPS,
+  IPOST,
 } from "@/types";
 import { v4 as UUID } from "uuid";
 import { POSTS_LIMIT } from "../constants";
@@ -19,6 +20,7 @@ const registerUser = async (
 ): Promise<AUTH_API_RESPONSE> => {
   try {
     const { email, fullName, password, username } = data;
+
     const { data: res, error } = await supabase.auth.signUp({
       email,
       password,
@@ -51,7 +53,7 @@ const registerUser = async (
       username,
     });
 
-    if (!createUser.success) {
+    if (!createUser.success || !createUser.data) {
       return {
         success: false,
         message: createUser?.message || "an error occurred!",
@@ -124,7 +126,7 @@ const logoutUser = async (): Promise<AUTH_API_RESPONSE | undefined> => {
 
 const createUserRow = async (
   data: CREATE_USER_PROPS,
-): Promise<QUERY_API_RESPONSE> => {
+): Promise<QUERY_API_RESPONSE<Record<string, unknown>>> => {
   try {
     const { accountId, email, fullName, username } = data;
 
@@ -162,7 +164,9 @@ const createUserRow = async (
   }
 };
 
-const findUsername = async (username: string) => {
+const findUsername = async (
+  username: string,
+): Promise<QUERY_API_RESPONSE<Record<string, boolean>>> => {
   try {
     const { data, error } = await supabase
       .from("users")
@@ -178,7 +182,10 @@ const findUsername = async (username: string) => {
     }
 
     return {
-      exists: !!data?.id,
+      success: true,
+      data: {
+        exists: !!data?.id,
+      },
     };
   } catch (e) {
     console.error(e);
@@ -229,7 +236,10 @@ const createPost = async (data: CREATE_POST_PROPS) => {
   }
 };
 
-const uploadPostImage = async ({ image, userId }: UPLOAD_POST_IMAGE) => {
+const uploadPostImage = async ({
+  image,
+  userId,
+}: UPLOAD_POST_IMAGE): Promise<QUERY_API_RESPONSE<Record<string, string>>> => {
   try {
     const filePath = `${userId}/${UUID()}-${image.name}`;
 
@@ -298,24 +308,27 @@ const getPosts = async ({
   try {
     const start = pageParam;
 
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = (await supabase
       .from("posts")
       .select(
         "*, users(id, username, fullName, imageUrl), likes(id, user_id), saved(id, user_id))",
       )
       .order("created_at", { ascending: false })
-      .range(start, start + POSTS_LIMIT - 1);
+      .range(start, start + POSTS_LIMIT - 1)) as {
+      data: IPOST[] | null;
+      error: { message: string } | null;
+    };
 
-    if (error)
+    if (error || !posts)
       return {
         success: false,
-        message: error.message,
+        message: error?.message || "an error occurred while fetching posts",
       };
 
     return {
       success: true,
       data: {
-        posts,
+        posts: posts as IPOST[],
         nextCursor:
           posts.length === POSTS_LIMIT ? start + POSTS_LIMIT : undefined,
       },
@@ -332,7 +345,7 @@ const getPosts = async ({
 const likePost = async ({
   postId,
   userId,
-}: LIKE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+}: LIKE_POST_PROPS): Promise<QUERY_API_RESPONSE<Record<string, unknown>>> => {
   try {
     if (!postId || !userId) {
       return {
@@ -355,7 +368,7 @@ const likePost = async ({
         return {
           success: true,
           message: "Post already liked",
-          data: null,
+          data: undefined,
         };
       }
 
@@ -382,7 +395,7 @@ const likePost = async ({
 const unlikePost = async ({
   postId,
   userId,
-}: LIKE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+}: LIKE_POST_PROPS): Promise<QUERY_API_RESPONSE<Record<string, unknown>>> => {
   try {
     if (!postId || !userId) {
       return {
@@ -391,7 +404,7 @@ const unlikePost = async ({
       };
     }
 
-    const { error, data, count } = await supabase
+    const { error, count } = await supabase
       .from("likes")
       .delete({ count: "exact" })
       .eq("post_id", postId)
@@ -409,14 +422,13 @@ const unlikePost = async ({
       return {
         success: true,
         message: "Post was not liked",
-        data: null,
+        data: undefined,
       };
     }
 
     return {
       success: true,
       message: "Post unliked successfully",
-      data,
     };
   } catch (error) {
     console.error("Unlike post error:", error);
@@ -430,7 +442,7 @@ const unlikePost = async ({
 const savePost = async ({
   postId,
   userId,
-}: SAVE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+}: SAVE_POST_PROPS): Promise<QUERY_API_RESPONSE<Record<string, unknown>>> => {
   try {
     if (!postId || !userId) {
       return {
@@ -469,7 +481,7 @@ const savePost = async ({
 const unsavePost = async ({
   postId,
   userId,
-}: SAVE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+}: SAVE_POST_PROPS): Promise<QUERY_API_RESPONSE<Record<string, unknown>>> => {
   try {
     if (!postId || !userId) {
       return {
@@ -478,7 +490,7 @@ const unsavePost = async ({
       };
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("saved")
       .delete()
       .eq("user_id", userId)
@@ -494,7 +506,6 @@ const unsavePost = async ({
     return {
       success: true,
       message: "Post unsaved successfully",
-      data,
     };
   } catch (e) {
     console.log(e);
