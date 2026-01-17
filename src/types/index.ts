@@ -36,6 +36,11 @@ export type CREATE_POST_PROPS = {
   image: File;
 };
 
+export type UPLOAD_POST_IMAGE = {
+  image: File;
+  userId: string;
+};
+
 export type IPOST = {
   id: number;
   caption: string;
@@ -54,9 +59,24 @@ export type IPOST = {
     id: number;
     user_id: number;
   }[];
+  saved: {
+    id: number;
+    user_id: number;
+  }[];
 };
 
 export type LIKE_POST_PROPS = {
   postId: number;
   userId: number;
+};
+
+export type SAVE_POST_PROPS = {
+  postId: number;
+  userId: number;
+};
+
+export type GET_POST_RETURN_PROPS = {
+  data?: { posts: IPOST[]; nextCursor: number | undefined };
+  success: boolean;
+  message?: string;
 };

@@ -6,8 +6,10 @@ import type {
   AUTH_API_RESPONSE,
   QUERY_API_RESPONSE,
   CREATE_POST_PROPS,
-  IPOST,
   LIKE_POST_PROPS,
+  UPLOAD_POST_IMAGE,
+  GET_POST_RETURN_PROPS,
+  SAVE_POST_PROPS,
 } from "@/types";
 import { v4 as UUID } from "uuid";
 import { POSTS_LIMIT } from "../constants";
@@ -227,13 +229,7 @@ const createPost = async (data: CREATE_POST_PROPS) => {
   }
 };
 
-const uploadPostImage = async ({
-  image,
-  userId,
-}: {
-  image: File;
-  userId: string;
-}) => {
+const uploadPostImage = async ({ image, userId }: UPLOAD_POST_IMAGE) => {
   try {
     const filePath = `${userId}/${UUID()}-${image.name}`;
 
@@ -298,18 +294,14 @@ const getPosts = async ({
   pageParam = 0,
 }: {
   pageParam?: number | undefined;
-}): Promise<{
-  data?: { posts: IPOST[]; nextCursor: number | undefined };
-  success: boolean;
-  message?: string;
-}> => {
+}): Promise<GET_POST_RETURN_PROPS> => {
   try {
     const start = pageParam;
 
     const { data: posts, error } = await supabase
       .from("posts")
       .select(
-        "*, users(id, username, fullName, imageUrl), likes(id, user_id), saved(*)",
+        "*, users(id, username, fullName, imageUrl), likes(id, user_id), saved(id, user_id))",
       )
       .order("created_at", { ascending: false })
       .range(start, start + POSTS_LIMIT - 1);
@@ -435,6 +427,84 @@ const unlikePost = async ({
   }
 };
 
+const savePost = async ({
+  postId,
+  userId,
+}: SAVE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+  try {
+    if (!postId || !userId) {
+      return {
+        success: false,
+        message: "Post id and User id are required",
+      };
+    }
+
+    const { data, error } = await supabase
+      .from("saved")
+      .insert({ post_id: postId, user_id: userId })
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Post saved successfully",
+      data,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "An error occurred while saving post",
+    };
+  }
+};
+
+const unsavePost = async ({
+  postId,
+  userId,
+}: SAVE_POST_PROPS): Promise<QUERY_API_RESPONSE> => {
+  try {
+    if (!postId || !userId) {
+      return {
+        success: false,
+        message: "Post id and User id are required",
+      };
+    }
+
+    const { data, error } = await supabase
+      .from("saved")
+      .delete()
+      .eq("user_id", userId)
+      .eq("post_id", postId);
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Post unsaved successfully",
+      data,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      success: false,
+      message: "An error occurred while unsave post",
+    };
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -444,4 +514,6 @@ export {
   getPosts,
   likePost,
   unlikePost,
+  savePost,
+  unsavePost,
 };

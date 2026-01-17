@@ -6,12 +6,15 @@ import {
   createPost,
   likePost,
   unlikePost,
+  savePost,
+  unsavePost,
 } from "../supabase/api";
 import type {
   REGISTER_USER_PROPS,
   LOGIN_USER_PROPS,
   CREATE_POST_PROPS,
   LIKE_POST_PROPS,
+  SAVE_POST_PROPS,
 } from "@/types";
 import { QUERY_KEYS } from "../constants";
 
@@ -77,6 +80,44 @@ const useUnlikePost = () => {
   });
 };
 
+const useSavePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SAVE_POST_PROPS) => savePost(data),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POSTS, vars.postId],
+      });
+    },
+    onError: (error) => {
+      console.error("Save post error: ", error);
+    },
+  });
+};
+
+const useUnsavePost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SAVE_POST_PROPS) => unsavePost(data),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POSTS, vars.postId],
+      });
+    },
+    onError: (error) => {
+      console.error("Unsave post error: ", error);
+    },
+  });
+};
+
 export {
   useLoginUser,
   useLogoutUser,
@@ -84,4 +125,6 @@ export {
   useCreatePost,
   useLikePost,
   useUnlikePost,
+  useSavePost,
+  useUnsavePost,
 };
