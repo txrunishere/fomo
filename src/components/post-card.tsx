@@ -12,7 +12,7 @@ export const PostCard = ({ post }: { post: IPOST }) => {
   return (
     <Card className="border-border bg-background/40 mx-auto w-full max-w-xl overflow-hidden rounded-xl backdrop-blur-xl">
       <CardHeader className="flex items-center gap-3">
-        <Link to={"/profile"}>
+        <Link to={`/profile/${post.userId}`}>
           <Avatar>
             <AvatarImage src={post.users.imageUrl} />
             <AvatarFallback>
@@ -50,8 +50,8 @@ export const PostCard = ({ post }: { post: IPOST }) => {
             <img
               src={post.postImageUrl}
               alt="post"
-              className="h-full w-full object-cover object-center"
-              loading="lazy"
+              className="h-full w-full object-cover object-top"
+              // loading="lazy"
             />
           </div>
         </div>

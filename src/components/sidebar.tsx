@@ -50,7 +50,7 @@ export function Sidebar() {
     }
   };
 
-  const redirectUserToProfile = () => navigate("/profile");
+  const redirectUserToProfile = () => navigate(`/profile/${userData?.userId}`);
 
   return (
     <aside className="border-border bg-background/40 hidden h-screen w-72 flex-col rounded-r-2xl border p-4 backdrop-blur-xl md:flex">

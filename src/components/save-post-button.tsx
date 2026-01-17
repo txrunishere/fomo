@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const SavePostButton = ({ post }: { post: IPOST }) => {
-  console.log(post);
   const { mutateAsync: savePost, isPending: isSaving } = useSavePost();
   const { mutateAsync: unsavePost, isPending: isUnsaving } = useUnsavePost();
   const { session } = useAuth();

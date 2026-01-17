@@ -2,7 +2,7 @@ export const ROUTES = {
   REGISTER: "/register",
   LOGIN: "/login",
   HOME: "/",
-  PROFILE: "/profile",
+  PROFILE: "/profile/:id",
   CREATE: "/create",
   SEARCH: "/search",
   MESSAGES: "/messages",

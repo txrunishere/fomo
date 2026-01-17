@@ -45,7 +45,10 @@ export function Topbar() {
           )}
         </Button>
 
-        <Avatar onClick={() => navigate("/profile")} className="cursor-pointer">
+        <Avatar
+          onClick={() => navigate(`/profile/${userData?.userId}`)}
+          className="cursor-pointer"
+        >
           <AvatarImage src={userData?.imageUrl} />
           <AvatarFallback>
             {userData?.fullName?.slice(0, 2).toUpperCase()}
