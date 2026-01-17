@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import type { IPOST } from "@/types";
 import { useSavePost, useUnsavePost } from "@/lib/react-query/mutations";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export const SavePostButton = ({ post }: { post: IPOST }) => {
@@ -12,18 +12,10 @@ export const SavePostButton = ({ post }: { post: IPOST }) => {
   const { session } = useAuth();
   const userId = session?.user?.user_metadata.userId;
 
-  const getInitialIsSaved = () => {
+  const [isSaved, setIsSaved] = useState<boolean>(() => {
     if (!userId) return false;
     return post.saved.some((save) => save.user_id === userId);
-  };
-
-  const [isSaved, setIsSaved] = useState<boolean>(getInitialIsSaved);
-  const [saveCount, setSaveCount] = useState<number>(post.saved.length);
-
-  useEffect(() => {
-    setIsSaved(getInitialIsSaved());
-    setSaveCount(post.saved.length);
-  }, [post.id, post.saved.length, userId]);
+  });
 
   const isPending = isSaving || isUnsaving;
 
@@ -36,12 +28,10 @@ export const SavePostButton = ({ post }: { post: IPOST }) => {
     if (isPending) return;
 
     const previousIsSaved = isSaved;
-    const previoussaveCount = saveCount;
 
     try {
       if (isSaved) {
         setIsSaved(false);
-        setSaveCount((prev) => Math.max(0, prev - 1));
 
         const res = await unsavePost({
           postId: post.id,
@@ -50,12 +40,10 @@ export const SavePostButton = ({ post }: { post: IPOST }) => {
 
         if (!res.success) {
           setIsSaved(previousIsSaved);
-          setSaveCount(previoussaveCount);
           toast.error(res.message || "Failed to unsave post");
         }
       } else {
         setIsSaved(true);
-        setSaveCount((prev) => prev + 1);
 
         const res = await savePost({
           postId: post.id,
@@ -64,13 +52,11 @@ export const SavePostButton = ({ post }: { post: IPOST }) => {
 
         if (!res.success) {
           setIsSaved(previousIsSaved);
-          setSaveCount(previoussaveCount);
           toast.error(res.message || "Failed to save post");
         }
       }
     } catch (error) {
       setIsSaved(previousIsSaved);
-      setSaveCount(previoussaveCount);
 
       console.error("Error toggling save:", error);
       toast.error("An error occurred. Please try again");

@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useLikePost, useUnlikePost } from "@/lib/react-query/mutations";
 import { Heart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import type { IPOST } from "@/types";
@@ -13,18 +13,12 @@ export const LikeButton = ({ post }: { post: IPOST }) => {
 
   const userId = user?.user?.user_metadata?.userId;
 
-  const getInitialIsLiked = () => {
+  const [isLiked, setIsLiked] = useState<boolean>(() => {
     if (!userId) return false;
     return post.likes.some((like) => like.user_id === userId);
-  };
+  });
 
-  const [isLiked, setIsLiked] = useState<boolean>(getInitialIsLiked);
-  const [likeCount, setLikeCount] = useState<number>(post.likes.length);
-
-  useEffect(() => {
-    setIsLiked(getInitialIsLiked());
-    setLikeCount(post.likes.length);
-  }, [post.id, post.likes.length, userId]);
+  const likeCount = post.likes.length;
 
   const isPending = isLiking || isUnliking;
 
@@ -37,12 +31,10 @@ export const LikeButton = ({ post }: { post: IPOST }) => {
     if (isPending) return;
 
     const previousIsLiked = isLiked;
-    const previousLikeCount = likeCount;
 
     try {
       if (isLiked) {
         setIsLiked(false);
-        setLikeCount((prev) => Math.max(0, prev - 1));
 
         const res = await unlikePost({
           postId: post.id,
@@ -51,12 +43,10 @@ export const LikeButton = ({ post }: { post: IPOST }) => {
 
         if (!res.success) {
           setIsLiked(previousIsLiked);
-          setLikeCount(previousLikeCount);
           toast.error(res.message || "Failed to unlike post");
         }
       } else {
         setIsLiked(true);
-        setLikeCount((prev) => prev + 1);
 
         const res = await likePost({
           postId: post.id,
@@ -65,13 +55,11 @@ export const LikeButton = ({ post }: { post: IPOST }) => {
 
         if (!res.success) {
           setIsLiked(previousIsLiked);
-          setLikeCount(previousLikeCount);
           toast.error(res.message || "Failed to like post");
         }
       }
     } catch (error) {
       setIsLiked(previousIsLiked);
-      setLikeCount(previousLikeCount);
 
       console.error("Error toggling like:", error);
       toast.error("An error occurred. Please try again");
