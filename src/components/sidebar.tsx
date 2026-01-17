@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router";
-import { buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -21,10 +20,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useTheme } from "@/components/theme-proivder";
+import { useTheme } from "../hooks/use-theme";
 import { useLogoutUser } from "@/lib/react-query/mutations";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { buttonVariants } from "./ui/button-variants";
 
 const navItems = [
   { label: "Home", icon: Home, href: "/" },

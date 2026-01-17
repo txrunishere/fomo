@@ -2,7 +2,7 @@ import { Sun, Moon, LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useTheme } from "@/components/theme-proivder";
+import { useTheme } from "../hooks/use-theme";
 import { useLogoutUser } from "@/lib/react-query/mutations";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";

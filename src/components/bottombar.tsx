@@ -1,7 +1,7 @@
 import { Home, Search, MessageCircle, PlusCircle } from "lucide-react";
 
 import { NavLink } from "react-router";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "./ui/button-variants";
 
 const navItems = [
   { label: "Home", icon: Home, href: "/" },
