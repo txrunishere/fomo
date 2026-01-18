@@ -8,6 +8,7 @@ import {
   unlikePost,
   savePost,
   unsavePost,
+  updateUserProfile,
 } from "../supabase/api";
 import type {
   REGISTER_USER_PROPS,
@@ -15,6 +16,7 @@ import type {
   CREATE_POST_PROPS,
   LIKE_POST_PROPS,
   SAVE_POST_PROPS,
+  UPDATE_PROFILE_PROPS,
 } from "@/types";
 import { QUERY_KEYS } from "../constants";
 
@@ -118,6 +120,19 @@ const useUnsavePost = () => {
   });
 };
 
+const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UPDATE_PROFILE_PROPS) => updateUserProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER],
+      });
+    },
+  });
+};
+
 export {
   useLoginUser,
   useLogoutUser,
@@ -127,4 +142,5 @@ export {
   useUnlikePost,
   useSavePost,
   useUnsavePost,
+  useUpdateUserProfile,
 };

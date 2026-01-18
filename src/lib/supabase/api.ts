@@ -11,6 +11,7 @@ import type {
   GET_POST_RETURN_PROPS,
   SAVE_POST_PROPS,
   IPOST,
+  UPDATE_PROFILE_PROPS,
 } from "@/types";
 import { v4 as UUID } from "uuid";
 import { POSTS_LIMIT } from "../constants";
@@ -543,6 +544,75 @@ const getUser = async (userId: number) => {
     };
   }
 };
+
+export async function updateUserProfile({
+  userId,
+  fullName,
+  username,
+  bio,
+  profilePicture,
+}: UPDATE_PROFILE_PROPS) {
+  try {
+    let imageUrl: string | undefined;
+
+    if (profilePicture) {
+      const filePath = `avatars/${userId}-${UUID()}-${profilePicture.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("profilePicture")
+        .upload(filePath, profilePicture, {
+          contentType: profilePicture.type,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        return {
+          success: false,
+          message: uploadError.message,
+        };
+      }
+
+      const { data } = supabase.storage
+        .from("profilePicture")
+        .getPublicUrl(filePath);
+
+      imageUrl = data.publicUrl;
+    }
+
+    const { error, data } = await supabase
+      .from("users")
+      .update({
+        fullName,
+        username,
+        bio,
+        imageUrl,
+      })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    await supabase.auth.updateUser({
+      data: {
+        imageUrl: data.imageUrl || null,
+      },
+    });
+
+    return { success: true, message: "User updated Successfully" };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "An error occurred while updating user",
+    };
+  }
+}
 
 export {
   registerUser,

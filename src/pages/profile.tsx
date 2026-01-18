@@ -2,12 +2,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { useGetUser } from "@/lib/react-query/queries";
 import { useParams } from "react-router";
+import { useAuth } from "@/hooks/useAuth";
+
+import { EditProfileForm } from "@/components/edit-profile-form";
+import { useState } from "react";
 
 export function Profile() {
+  const { session } = useAuth();
+  const userId = session?.user.user_metadata.userId;
   const { id } = useParams();
   const { data: user } = useGetUser(Number(id));
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const isOwnProfile = userId && id && userId === Number(id);
 
   return (
     <div className="flex min-h-screen gap-6 p-4 md:p-6">
@@ -17,7 +35,7 @@ export function Profile() {
             <Avatar className="h-24 w-24">
               <AvatarImage src={user?.data.imageUrl} />
               <AvatarFallback>
-                {user?.data.fullName.slice(0, 2).toUpperCase()}
+                {user?.data.fullName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
@@ -46,7 +64,32 @@ export function Profile() {
               </p>
             </div>
 
-            <Button variant="secondary">Edit Profile</Button>
+            <div className="flex flex-col gap-3">
+              {isOwnProfile && (
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary">Edit Profile</Button>
+                  </DialogTrigger>
+
+                  <DialogContent className="border-border bg-background/40 max-w-xl rounded-2xl backdrop-blur-xl">
+                    <DialogHeader>
+                      <DialogTitle>Edit Profile</DialogTitle>
+                    </DialogHeader>
+
+                    <EditProfileForm
+                      defaultValues={{
+                        fullName: user?.data.fullName,
+                        username: user?.data.username,
+                        bio: user?.data.bio,
+                        imageUrl: user?.data.imageUrl,
+                      }}
+                      onSuccess={() => setIsOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              )}
+              {!isOwnProfile && <Button>Message</Button>}
+            </div>
           </CardContent>
         </Card>
 

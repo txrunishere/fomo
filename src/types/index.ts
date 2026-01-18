@@ -80,3 +80,11 @@ export type GET_POST_RETURN_PROPS = {
   success: boolean;
   message?: string;
 };
+
+export type UPDATE_PROFILE_PROPS = {
+  userId: number;
+  fullName: string;
+  username: string;
+  bio?: string;
+  profilePicture?: File;
+};
