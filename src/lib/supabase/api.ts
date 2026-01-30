@@ -545,13 +545,13 @@ const getUser = async (userId: number) => {
   }
 };
 
-export async function updateUserProfile({
+const updateUserProfile = async ({
   userId,
   fullName,
   username,
   bio,
   profilePicture,
-}: UPDATE_PROFILE_PROPS) {
+}: UPDATE_PROFILE_PROPS) => {
   try {
     let imageUrl: string | undefined;
 
@@ -612,7 +612,7 @@ export async function updateUserProfile({
       message: "An error occurred while updating user",
     };
   }
-}
+};
 
 export {
   registerUser,
@@ -626,4 +626,5 @@ export {
   savePost,
   unsavePost,
   getUser,
+  updateUserProfile,
 };
